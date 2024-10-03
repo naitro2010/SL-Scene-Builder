@@ -344,17 +344,33 @@ impl Project {
                             continue;
                         }
                         control.insert(event);
-                        let lines = make_fnis_lines(
-                            &position.event,
-                            &self.prefix_hash,
-                            stage.extra.fixed_len > 0.0,
-                            &position.anim_obj.split(',').fold(vec![], |mut acc, x| {
-                                if !x.is_empty() {
-                                    acc.push(x.to_string());
-                                }
-                                acc
-                            }),
-                        );
+                        
+                        let lines = if (std::env::var("UD_WORKAROUND")).is_ok() { 
+                            make_fnis_lines(
+                                &position.event,
+                                "",
+                                stage.extra.fixed_len > 0.0,
+                                &position.anim_obj.split(',').fold(vec![], |mut acc, x| {
+                                    if !x.is_empty() {
+                                        acc.push(x.to_string());
+                                    }
+                                    acc
+                                }),
+                            )
+                        } else {
+                            make_fnis_lines(
+                                &position.event,
+                                &self.prefix_hash,
+                                stage.extra.fixed_len > 0.0,
+                                &position.anim_obj.split(',').fold(vec![], |mut acc, x| {
+                                    if !x.is_empty() {
+                                        acc.push(x.to_string());
+                                    }
+                                    acc
+                                }),
+                            )
+                        };
+                        
                         let mut insert = |race| {
                             events
                                 .entry(race)
