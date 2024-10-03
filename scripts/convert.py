@@ -284,7 +284,8 @@ def convert(parent_dir, dir):
 
                         if '-' in split:
                             options.append(split)
-
+                    if (anim_event_name is None):
+                        continue
                     anim_event_name = anim_event_name.lower()
 
                     if '-a' in line:
@@ -314,7 +315,8 @@ def convert(parent_dir, dir):
                     if last_seq is None:
                         anim_data[anim_event_name] = data
                     else:
-                        anim_data[last_seq]['sequence'].append(data)
+                        if (last_seq in anim_data):
+                            anim_data[last_seq]['sequence'].append(data)
                         last_seq = None
 
     anim_data = dict()
@@ -329,9 +331,10 @@ def convert(parent_dir, dir):
                         if filename.startswith('FNIS_') and filename.endswith('_List.txt'):
                             func(path, filename)
         else:
-            for filename in os.listdir(dir):
-                path = os.path.join(dir, filename)
-                iter_fnis_lists(path, func)
+            if (os.path.isdir(dir)):
+                for filename in os.listdir(dir):
+                    path = os.path.join(dir, filename)
+                    iter_fnis_lists(path, func)
 
     
     anim_dir = working_dir + '\\meshes\\actors'
@@ -345,7 +348,8 @@ def convert(parent_dir, dir):
 
     def process_stage(scene, stage):
         name = scene['name']
-        
+        if not (name in animations):
+            return
         source_anim_data = animations[name]
 
         tags = [tag.lower().strip() for tag in stage['tags']]
@@ -437,7 +441,8 @@ def convert(parent_dir, dir):
                     data = anim_data[event]
                     pos['event'][0] = os.path.splitext(data['anim_file_name'])[0]
                     os.makedirs(os.path.dirname(os.path.join(out_dir, data['out_path'])), exist_ok=True)
-                    shutil.copyfile(data['path'], os.path.join(out_dir, data['out_path']))
+                    if (os.path.exists(data['path'])):
+                        shutil.copyfile(data['path'], os.path.join(out_dir, data['out_path']))
 
             actor_map = source_anim_data['actors']     
             actor_key = 'a' + str(i + 1)
